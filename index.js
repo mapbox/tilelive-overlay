@@ -1,5 +1,6 @@
 var util = require('util'),
     mapnik = require('mapnik'),
+    sph = new (require('sphericalmercator'))(),
     path = require('path'),
     geojsonhint = require('geojsonhint'),
     generateXML = require('./lib/generatexml.js'),
@@ -30,9 +31,14 @@ function Source(id, callback) {
         if (geojsonhint.hint(data).length) {
             return callback('invalid geojson');
         }
-        this._data = JSON.parse(data);
-        this._xml = generateXML(this._data);
-        callback(null, this);
+        try {
+            this.map = new mapnik.Map(256, 256);
+            this.map.fromStringSync(
+                generateXML(JSON.parse(data)), {});
+            return callback(null, this);
+        } catch (e) {
+            return callback(e);
+        }
     }.bind(this));
 }
 
@@ -45,7 +51,11 @@ function Source(id, callback) {
  * @param {function} callback
  */
 Source.prototype.getTile = function(z, x, y, callback) {
-    callback(null);
+    var im = new mapnik.Image(256, 256);
+    map.extent = sph.bbox(z, x, y).
+    map.render(im, function(err, im) {
+        if (err) return callback(err);
+    });
 };
 
 /**

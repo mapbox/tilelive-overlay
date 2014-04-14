@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "mapnik": "~0.7.28",
-    "geojsonhint": "~0.3.1"
+    "geojsonhint": "~0.3.1",
+    "sphericalmercator": "~1.0.2"
   }
 }
