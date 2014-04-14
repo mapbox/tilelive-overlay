@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+var Simple = require('../'),
+    path = require('path'),
+    fs = require('fs');
+
+new Simple('simple://' + path.resolve(process.argv[2]), function(err, source) {
+    source.getTile(0, 0, 0, function(err, tile) {
+        process.stdout.write(tile);
+    });
+});

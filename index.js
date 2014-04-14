@@ -1,6 +1,6 @@
 var util = require('util'),
     mapnik = require('mapnik'),
-    sph = new (require('sphericalmercator'))(),
+    sph = require('./lib/sphericalmercator.js'),
     path = require('path'),
     geojsonhint = require('geojsonhint'),
     generateXML = require('./lib/generatexml.js'),
@@ -37,7 +37,7 @@ function Source(id, callback) {
             this.map = new mapnik.Map(256, 256);
             this.map.fromStringSync(
                 generateXML(JSON.parse(data)), {});
-            return callback(null, this);
+                return callback(null, this);
         } catch (e) {
             return callback(e);
         }
@@ -54,9 +54,10 @@ function Source(id, callback) {
  */
 Source.prototype.getTile = function(z, x, y, callback) {
     var im = new mapnik.Image(256, 256);
-    map.extent = sph.bbox(z, x, y).
-    map.render(im, function(err, im) {
+    this.map.extent = sph.xyz_to_envelope(z, x, y);
+    this.map.render(im, function(err, im) {
         if (err) return callback(err);
+        callback(err, im.encodeSync('png'));
     });
 };
 
@@ -90,6 +91,10 @@ Source.registerProtocols = function(tilelive) {
     tilelive.protocols['simple:'] = Source;
 };
 
+/**
+ * @param {string} uri
+ * @returns {string}
+ */
 function normalizeURI(uri) {
     if (typeof uri === 'string') uri = url.parse(uri, true);
     if (uri.hostname === '.' || uri.hostname == '..') {
