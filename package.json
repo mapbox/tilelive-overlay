@@ -1,0 +1,32 @@
+{
+  "name": "tilelive-simplestyle",
+  "version": "0.0.0",
+  "description": "use geojson and simplestyle features rendered with mapnik",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mapbox/tilelive-simplestyle.git"
+  },
+  "keywords": [
+    "tilelive",
+    "mapnik",
+    "geo",
+    "simplestyle"
+  ],
+  "author": "Tom MacWright",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mapbox/tilelive-simplestyle/issues"
+  },
+  "homepage": "https://github.com/mapbox/tilelive-simplestyle",
+  "devDependencies": {
+    "tap": "~0.4.8"
+  },
+  "dependencies": {
+    "mapnik": "~0.7.28",
+    "geojsonhint": "~0.3.1"
+  }
+}
