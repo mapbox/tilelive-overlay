@@ -7,7 +7,9 @@ var util = require('util'),
     url = require('url'),
     fs = require('fs');
 
-if (mapnik.register_default_input_plugins) mapnik.register_default_input_plugins();
+if (mapnik.register_default_input_plugins) {
+    mapnik.register_default_input_plugins();
+}
 
 module.exports = Source;
 

@@ -3,4 +3,5 @@
 var generateXML = require('../lib/generatexml'),
     fs = require('fs');
 
-process.stdout.write(generateXML(JSON.parse(fs.readFileSync('./test/data/example.geojson'))));
+var gj = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+process.stdout.write(generateXML(gj));
