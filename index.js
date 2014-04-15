@@ -37,14 +37,16 @@ require('util').inherits(Source, require('events').EventEmitter);
 function Source(id, callback) {
     var uri = normalizeURI(id);
 
-    if (!uri || (uri.protocol &&
-        !(uri.protocol === 'simple:' ||
-        uri.protocol === 'simpledata:'))) {
+    if (!uri || (uri.protocol && uri.protocol !== 'simpledata:')) {
         throw new Error('Only the simple & simpledata protocols are supported');
     }
 
-
     var onload = function(err, data) {
+        var retina = false;
+        if (data.indexOf('2x:') === 0) {
+            retina = true;
+            data = data.replace(/^2x:/, '');
+        }
         if (err) return callback(err);
         if (geojsonhint.hint(data).length) {
             return callback('invalid geojson');
@@ -58,7 +60,7 @@ function Source(id, callback) {
         if (generated.resources.length) {
             var q = queue(10);
             generated.resources.forEach(function(res) {
-                q.defer(loadMarker, res);
+                q.defer(loadMarker, res, retina);
             });
             q.awaitAll(done);
         } else {
@@ -66,12 +68,7 @@ function Source(id, callback) {
         }
     }.bind(this);
 
-    if (uri.protocol === 'simpledata:') {
-        onload(null, id.replace('simpledata://', ''));
-    } else {
-        var filename = path.resolve(uri.pathname);
-        fs.readFile(filename, 'utf8', onload);
-    }
+    onload(null, id.replace('simpledata://', ''));
 }
 
 /**
@@ -84,8 +81,10 @@ function Source(id, callback) {
  */
 Source.prototype.getTile = function(z, x, y, callback) {
     var map = new mapnik.Map(256, 256);
-    map.fromStringSync(this._xml, {});
     var im = new mapnik.Image(256, 256);
+
+    map.fromStringSync(this._xml, {});
+    map.bufferSize = 256;
     map.extent = sph.xyz_to_envelope(x, y, z);
     map.render(im, function(err, im) {
         if (err) return callback(err);
@@ -141,19 +140,20 @@ function normalizeURI(uri) {
     return uri;
 }
 
-function loadMarker(id, callback) {
+function loadMarker(id, retina, callback) {
     var matchURL = /^(url)(?:-([^\(]+))()\((-?\d+(?:.\d+)?),(-?\d+(?:.\d+)?)/;
     var matchFile = /^(pin-s|pin-m|pin-l)(?:-([a-z0-9-]+))?(?:\+([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))?/;
 
     var isurl = id.indexOf('url-') === 0;
     var marker = id.match(isurl ? matchURL : matchFile);
     if (!marker) return callback(new ErrorHTTP('Marker "' + marker + '" is invalid.', 400));
+    var slug = id + (retina ? '@2x' : '') + '.png';
     new Marker({
         name: marker[1],
         label: marker[2],
         tint: marker[3],
-        retina: true // req.params.retina === '@2x'
+        retina: retina
     }, function(err, data) {
-        fs.writeFile(TMP + '/' + id + '.png', data.image, callback);
+        fs.writeFile(TMP + '/' + slug, data.image, callback);
     });
 }
