@@ -43,25 +43,18 @@ function Source(id, callback) {
         throw new Error('Only the simple & simpledata protocols are supported');
     }
 
-    this.map = new mapnik.Map(256, 256);
 
     var onload = function(err, data) {
         if (err) return callback(err);
         if (geojsonhint.hint(data).length) {
             return callback('invalid geojson');
         }
-
         var done = function(err) {
             if (err) return callback(err);
-            try {
-                this.map.fromStringSync(generated.xml, {});
-                return callback(null, this);
-            } catch(e) {
-                return callback(e);
-            }
+            return callback(null, this);
         }.bind(this);
-
         var generated = generateXML(JSON.parse(data), TMP);
+        this._xml = generated.xml;
         if (generated.resources.length) {
             var q = queue(10);
             generated.resources.forEach(function(res) {
@@ -90,9 +83,11 @@ function Source(id, callback) {
  * @param {function} callback
  */
 Source.prototype.getTile = function(z, x, y, callback) {
+    var map = new mapnik.Map(256, 256);
+    map.fromStringSync(this._xml, {});
     var im = new mapnik.Image(256, 256);
-    this.map.extent = sph.xyz_to_envelope(x, y, z);
-    this.map.render(im, function(err, im) {
+    map.extent = sph.xyz_to_envelope(x, y, z);
+    map.render(im, function(err, im) {
         if (err) return callback(err);
         callback(err, im.encodeSync('png'));
     });
