@@ -1,12 +1,22 @@
 var util = require('util'),
     mapnik = require('mapnik'),
     sph = require('./lib/sphericalmercator.js'),
-    path = require('path'),
     geojsonhint = require('geojsonhint'),
     generateXML = require('./lib/generatexml.js'),
     Marker = require('./lib/marker.js'),
     url = require('url'),
-    fs = require('fs');
+    fs = require('fs'),
+    queue = require('queue-async'),
+    ErrorHTTP = require('./lib/errorhttp'),
+    os = require('os'),
+    fs = require('fs'),
+    path = require('path');
+
+var TMP = os.tmpdir() + 'tl-overlay';
+
+try {
+    fs.mkdirSync(TMP);
+} catch(e) { }
 
 if (mapnik.register_default_input_plugins) {
     mapnik.register_default_input_plugins();
@@ -36,15 +46,48 @@ function Source(id, callback) {
         if (geojsonhint.hint(data).length) {
             return callback('invalid geojson');
         }
+
+        var done = function(err) {
+            if (err) return callback(err);
+            this.map.fromStringSync(generated.xml, {});
+            return callback(null, this);
+        }.bind(this);
+
         try {
             this.map = new mapnik.Map(256, 256);
-            this.map.fromStringSync(
-                generateXML(JSON.parse(data)), {});
-                return callback(null, this);
+            var generated = generateXML(JSON.parse(data), TMP);
+            if (generated.resources.length) {
+                var q = queue(10);
+                generated.resources.forEach(function(res) {
+                    q.defer(loadMarker, res);
+                });
+                q.awaitAll(done);
+            } else {
+                done();
+            }
         } catch (e) {
             return callback(e);
         }
     }.bind(this));
+}
+
+function loadMarker(id, callback) {
+    var matchURL = /^(url)(?:-([^\(]+))()\((-?\d+(?:.\d+)?),(-?\d+(?:.\d+)?)/;
+    var matchFile = /^(pin-s|pin-m|pin-l)(?:-([a-z0-9-]+))?(?:\+([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))?/;
+
+    var isurl = id.indexOf('url-') === 0;
+    var marker = id.match(isurl ? matchURL : matchFile);
+    if (!marker) return callback(new ErrorHTTP('Marker "' + marker + '" is invalid.', 400));
+    new Marker({
+        name: marker[1],
+        label: marker[2],
+        tint: marker[3],
+        lon: parseFloat(marker[4]),
+        lat: parseFloat(marker[5]),
+        retina: true // req.params.retina === '@2x'
+    }, function(err, data) {
+        fs.writeFile(TMP + '/' + id, data, callback);
+    });
 }
 
 /**

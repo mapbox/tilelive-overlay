@@ -34,6 +34,7 @@
     "blend": "~0.10.1",
     "agentkeepalive": "~0.2.2",
     "lru-cache": "~2.5.0",
-    "xtend": "~3.0.0"
+    "xtend": "~3.0.0",
+    "queue-async": "~1.0.7"
   }
 }

@@ -3,6 +3,7 @@ var test = require('tap').test,
 
 test('simple', function(t) {
     new Simple('simple://' + __dirname + '/data/example.geojson', function(err, source) {
+        if (err) throw err;
         t.notOk(err, 'no error returned');
         t.ok(source, 'source created');
         source.getGrid(0, 0, 0, function(err, res) {
