@@ -36,10 +36,13 @@ require('util').inherits(Source, require('events').EventEmitter);
  */
 function Source(id, callback) {
     var uri = normalizeURI(id);
-    if (!uri || (uri.protocol && uri.protocol !== 'simple:')) {
-        throw new Error('Only the simple protocol is supported');
+
+    if (!uri || (uri.protocol &&
+        !(uri.protocol === 'simple:' ||
+        uri.protocol === 'simpledata:'))) {
+        throw new Error('Only the simple & simpledata protocols are supported');
     }
-    var filename = path.resolve(uri.pathname);
+
     this.map = new mapnik.Map(256, 256);
 
     var onload = function(err, data) {
@@ -70,7 +73,12 @@ function Source(id, callback) {
         }
     }.bind(this);
 
-    fs.readFile(filename, 'utf8', onload);
+    if (uri.protocol === 'simpledata:') {
+        onload(null, id.replace('simpledata://', ''));
+    } else {
+        var filename = path.resolve(uri.pathname);
+        fs.readFile(filename, 'utf8', onload);
+    }
 }
 
 /**
@@ -83,7 +91,7 @@ function Source(id, callback) {
  */
 Source.prototype.getTile = function(z, x, y, callback) {
     var im = new mapnik.Image(256, 256);
-    this.map.extent = sph.xyz_to_envelope(z, x, y);
+    this.map.extent = sph.xyz_to_envelope(x, y, z);
     this.map.render(im, function(err, im) {
         if (err) return callback(err);
         callback(err, im.encodeSync('png'));
@@ -118,6 +126,7 @@ Source.prototype.getInfo = function(callback) {
  */
 Source.registerProtocols = function(tilelive) {
     tilelive.protocols['simple:'] = Source;
+    tilelive.protocols['simpledata:'] = Source;
 };
 
 /**
@@ -150,6 +159,6 @@ function loadMarker(id, callback) {
         tint: marker[3],
         retina: true // req.params.retina === '@2x'
     }, function(err, data) {
-        fs.writeFile(TMP + '/' + id, data, callback);
+        fs.writeFile(TMP + '/' + id + '.png', data.image, callback);
     });
 }
