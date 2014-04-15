@@ -4,6 +4,7 @@ var util = require('util'),
     path = require('path'),
     geojsonhint = require('geojsonhint'),
     generateXML = require('./lib/generatexml.js'),
+    Marker = require('./lib/marker.js'),
     url = require('url'),
     fs = require('fs');
 
