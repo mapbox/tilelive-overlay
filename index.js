@@ -35,40 +35,41 @@ require('util').inherits(Source, require('events').EventEmitter);
  * @returns {undefined}
  */
 function Source(id, callback) {
-    var uri = normalizeURI(id);
+    var uri = url.parse(id);
 
     if (!uri || (uri.protocol && uri.protocol !== 'simpledata:')) {
         throw new Error('Only the simple & simpledata protocols are supported');
     }
 
-    var onload = function(err, data) {
-        var retina = false;
-        if (data.indexOf('2x:') === 0) {
-            retina = true;
-            data = data.replace(/^2x:/, '');
-        }
+    var data = id.replace('simpledata://', '');
+    var retina = false;
+
+    if (data.indexOf('2x:') === 0) {
+        retina = true;
+        data = data.replace(/^2x:/, '');
+    }
+
+    if (geojsonhint.hint(data).length) {
+        return callback('invalid geojson');
+    }
+
+    var done = function(err) {
         if (err) return callback(err);
-        if (geojsonhint.hint(data).length) {
-            return callback('invalid geojson');
-        }
-        var done = function(err) {
-            if (err) return callback(err);
-            return callback(null, this);
-        }.bind(this);
-        var generated = generateXML(JSON.parse(data), TMP);
-        this._xml = generated.xml;
-        if (generated.resources.length) {
-            var q = queue(10);
-            generated.resources.forEach(function(res) {
-                q.defer(loadMarker, res, retina);
-            });
-            q.awaitAll(done);
-        } else {
-            done();
-        }
+        return callback(null, this);
     }.bind(this);
 
-    onload(null, id.replace('simpledata://', ''));
+    var generated = generateXML(JSON.parse(data), TMP, retina);
+    this._xml = generated.xml;
+
+    if (generated.resources.length) {
+        var q = queue(10);
+        generated.resources.forEach(function(res) {
+            q.defer(loadMarker, res.replace('@2x', ''), retina);
+        });
+        q.awaitAll(done);
+    } else {
+        done();
+    }
 }
 
 /**
@@ -123,26 +124,9 @@ Source.registerProtocols = function(tilelive) {
     tilelive.protocols['simpledata:'] = Source;
 };
 
-/**
- * @param {string} uri
- * @returns {string}
- */
-function normalizeURI(uri) {
-    if (typeof uri === 'string') uri = url.parse(uri, true);
-    if (uri.hostname === '.' || uri.hostname == '..') {
-        uri.pathname = uri.hostname + uri.pathname;
-        delete uri.hostname;
-        delete uri.host;
-    }
-    if (typeof uri.pathname !== 'undefined') {
-        uri.pathname = path.resolve(uri.pathname);
-    }
-    return uri;
-}
-
 function loadMarker(id, retina, callback) {
     var matchURL = /^(url)(?:-([^\(]+))()\((-?\d+(?:.\d+)?),(-?\d+(?:.\d+)?)/;
-    var matchFile = /^(pin-s|pin-m|pin-l)(?:-([a-z0-9-]+))?(?:\+([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))?/;
+    var matchFile = /^(pin-s|pin-m|pin-l)(?:-([a-z0-9-]+))?(?:\+([0-9a-fA-F]{6}|[0-9a-fA-F]{3}))?$/;
 
     var isurl = id.indexOf('url-') === 0;
     var marker = id.match(isurl ? matchURL : matchFile);
