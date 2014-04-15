@@ -39,9 +39,10 @@ function Source(id, callback) {
     if (!uri || (uri.protocol && uri.protocol !== 'simple:')) {
         throw new Error('Only the simple protocol is supported');
     }
-
     var filename = path.resolve(uri.pathname);
-    fs.readFile(filename, 'utf8', function(err, data) {
+    this.map = new mapnik.Map(256, 256);
+
+    var onload = function(err, data) {
         if (err) return callback(err);
         if (geojsonhint.hint(data).length) {
             return callback('invalid geojson');
@@ -49,45 +50,27 @@ function Source(id, callback) {
 
         var done = function(err) {
             if (err) return callback(err);
-            this.map.fromStringSync(generated.xml, {});
-            return callback(null, this);
+            try {
+                this.map.fromStringSync(generated.xml, {});
+                return callback(null, this);
+            } catch(e) {
+                return callback(e);
+            }
         }.bind(this);
 
-        try {
-            this.map = new mapnik.Map(256, 256);
-            var generated = generateXML(JSON.parse(data), TMP);
-            if (generated.resources.length) {
-                var q = queue(10);
-                generated.resources.forEach(function(res) {
-                    q.defer(loadMarker, res);
-                });
-                q.awaitAll(done);
-            } else {
-                done();
-            }
-        } catch (e) {
-            return callback(e);
+        var generated = generateXML(JSON.parse(data), TMP);
+        if (generated.resources.length) {
+            var q = queue(10);
+            generated.resources.forEach(function(res) {
+                q.defer(loadMarker, res);
+            });
+            q.awaitAll(done);
+        } else {
+            done();
         }
-    }.bind(this));
-}
+    }.bind(this);
 
-function loadMarker(id, callback) {
-    var matchURL = /^(url)(?:-([^\(]+))()\((-?\d+(?:.\d+)?),(-?\d+(?:.\d+)?)/;
-    var matchFile = /^(pin-s|pin-m|pin-l)(?:-([a-z0-9-]+))?(?:\+([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))?/;
-
-    var isurl = id.indexOf('url-') === 0;
-    var marker = id.match(isurl ? matchURL : matchFile);
-    if (!marker) return callback(new ErrorHTTP('Marker "' + marker + '" is invalid.', 400));
-    new Marker({
-        name: marker[1],
-        label: marker[2],
-        tint: marker[3],
-        lon: parseFloat(marker[4]),
-        lat: parseFloat(marker[5]),
-        retina: true // req.params.retina === '@2x'
-    }, function(err, data) {
-        fs.writeFile(TMP + '/' + id, data, callback);
-    });
+    fs.readFile(filename, 'utf8', onload);
 }
 
 /**
@@ -152,4 +135,21 @@ function normalizeURI(uri) {
         uri.pathname = path.resolve(uri.pathname);
     }
     return uri;
+}
+
+function loadMarker(id, callback) {
+    var matchURL = /^(url)(?:-([^\(]+))()\((-?\d+(?:.\d+)?),(-?\d+(?:.\d+)?)/;
+    var matchFile = /^(pin-s|pin-m|pin-l)(?:-([a-z0-9-]+))?(?:\+([0-9a-fA-F]{3}|[0-9a-fA-F]{6}))?/;
+
+    var isurl = id.indexOf('url-') === 0;
+    var marker = id.match(isurl ? matchURL : matchFile);
+    if (!marker) return callback(new ErrorHTTP('Marker "' + marker + '" is invalid.', 400));
+    new Marker({
+        name: marker[1],
+        label: marker[2],
+        tint: marker[3],
+        retina: true // req.params.retina === '@2x'
+    }, function(err, data) {
+        fs.writeFile(TMP + '/' + id, data, callback);
+    });
 }
