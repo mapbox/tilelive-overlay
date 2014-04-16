@@ -2,21 +2,15 @@ var util = require('util'),
     mapnik = require('mapnik'),
     sph = require('./lib/sphericalmercator.js'),
     geojsonhint = require('geojsonhint'),
-    generateXML = require('./lib/generatexml.js'),
-    Marker = require('./lib/marker.js'),
+    mapnikify = require('geojson-mapnikify'),
+    getUrlMarker = require('./lib/urlmarker.js'),
+    getMarker = require('makizushi'),
     url = require('url'),
     fs = require('fs'),
     queue = require('queue-async'),
     ErrorHTTP = require('./lib/errorhttp'),
     os = require('os'),
-    fs = require('fs'),
     path = require('path');
-
-var TMP = os.tmpdir() + 'tl-overlay';
-
-try {
-    fs.mkdirSync(TMP);
-} catch(e) { }
 
 if (mapnik.register_default_input_plugins) {
     mapnik.register_default_input_plugins();
@@ -37,11 +31,11 @@ require('util').inherits(Source, require('events').EventEmitter);
 function Source(id, callback) {
     var uri = url.parse(id);
 
-    if (!uri || (uri.protocol && uri.protocol !== 'simpledata:')) {
-        throw new Error('Only the simple & simpledata protocols are supported');
+    if (!uri || (uri.protocol && uri.protocol !== 'overlaydata:')) {
+        throw new Error('Only the overlaydata protocol is supported');
     }
 
-    var data = id.replace('simpledata://', '');
+    var data = id.replace('overlaydata://', '');
     var retina = false;
 
     if (data.indexOf('2x:') === 0) {
@@ -58,7 +52,7 @@ function Source(id, callback) {
         return callback(null, this);
     }.bind(this);
 
-    var generated = generateXML(JSON.parse(data), TMP, retina);
+    var generated = mapnikify(JSON.parse(data), retina);
     this._xml = generated.xml;
 
     if (generated.resources.length) {
@@ -120,24 +114,38 @@ Source.prototype.getInfo = function(callback) {
  * @param {object} tilelive
  */
 Source.registerProtocols = function(tilelive) {
-    tilelive.protocols['simple:'] = Source;
-    tilelive.protocols['simpledata:'] = Source;
+    tilelive.protocols['overlaydata:'] = Source;
 };
 
 function loadMarker(id, retina, callback) {
-    var matchURL = /^(url)(?:-([^\(]+))()\((-?\d+(?:.\d+)?),(-?\d+(?:.\d+)?)/;
+    var matchURL = /^(url)(?:-([^\(]+))()/;
     var matchFile = /^(pin-s|pin-m|pin-l)(?:-([a-z0-9-]+))?(?:\+([0-9a-fA-F]{6}|[0-9a-fA-F]{3}))?$/;
 
     var isurl = id.indexOf('url-') === 0;
     var marker = id.match(isurl ? matchURL : matchFile);
-    if (!marker) return callback(new ErrorHTTP('Marker "' + marker + '" is invalid.', 400));
+
+    if (!marker) {
+        return callback('Marker "' + marker + '" is invalid.');
+    }
+
     var slug = id + (retina ? '@2x' : '') + '.png';
-    new Marker({
-        name: marker[1],
-        label: marker[2],
-        tint: marker[3],
-        retina: retina
-    }, function(err, data) {
-        fs.writeFile(TMP + '/' + slug, data.image, callback);
-    });
+
+    if (isurl) {
+        getUrlMarker({
+            label: marker[2]
+        }, function(err, data) {
+            if (err) return callback(err);
+            fs.writeFile(TMP + slug, data.image, callback);
+        });
+    } else {
+        getMarker({
+            name: marker[1],
+            label: marker[2],
+            tint: marker[3],
+            retina: retina
+        }, function(err, data) {
+            if (err) return callback(err);
+            fs.writeFile(TMP + slug, data.image, callback);
+        });
+    }
 }

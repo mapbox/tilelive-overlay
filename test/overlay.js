@@ -1,8 +1,10 @@
 var test = require('tap').test,
-    Simple = require('../');
+    fs = require('fs'),
+    Overlay = require('../');
 
-test('simple', function(t) {
-    new Simple('simple://' + __dirname + '/data/example.geojson', function(err, source) {
+test('overlay', function(t) {
+    new Overlay('overlaydata://' + fs.readFileSync(__dirname + '/data/example.geojson', 'utf8'),
+        function(err, source) {
         if (err) throw err;
         t.notOk(err, 'no error returned');
         t.ok(source, 'source created');

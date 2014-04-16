@@ -35,6 +35,8 @@
     "agentkeepalive": "~0.2.2",
     "lru-cache": "~2.5.0",
     "xtend": "~3.0.0",
-    "queue-async": "~1.0.7"
+    "queue-async": "~1.0.7",
+    "geojson-mapnikify": "0.0.0",
+    "request": "~2.34.0"
   }
 }
