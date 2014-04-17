@@ -11,3 +11,33 @@ test('getUrlMarker', function(t) {
         t.end();
     });
 });
+
+test('getUrlMarker-invalid', function(t) {
+    getUrlMarker({
+        label: 'https://wwwmapbox.com/maki/renders/bus-18.png'
+    }, function(err, data) {
+        t.equal(err.message, 'Unable to load marker from URL.');
+        t.notOk(data, 'does not return data');
+        t.end();
+    });
+});
+
+test('getUrlMarker-invalid', function(t) {
+    getUrlMarker({
+        label: 'https//wwwmapbox.com/maki/renders/bus-18.png'
+    }, function(err, data) {
+        t.equal(err.message, 'Unable to load marker from URL.');
+        t.notOk(data, 'does not return data');
+        t.end();
+    });
+});
+
+test('getUrlMarker-invalid', function(t) {
+    getUrlMarker({
+        label: 'https/wwwmapbox.com/maki/renders/bus-18.png'
+    }, function(err, data) {
+        t.equal(err.message, 'Unable to load marker from URL.');
+        t.notOk(data, 'does not return data');
+        t.end();
+    });
+});
