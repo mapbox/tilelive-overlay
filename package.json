@@ -33,6 +33,7 @@
     "lru-cache": "~2.5.0",
     "xtend": "~3.0.0",
     "geojson-mapnikify": "0.0.3",
-    "request": "~2.34.0"
+    "request": "~2.34.0",
+    "geojsonhint": "~0.3.1"
   }
 }
