@@ -17,3 +17,17 @@ test('overlay', function(t) {
         t.end();
     });
 });
+
+test('overlay-invalid', function(t) {
+    new Overlay('overlaydata://invalidjson', function(err, source) {
+        t.equal(err, 'invalid geojson');
+        t.end();
+    });
+});
+
+test('overlay-invalid', function(t) {
+    new Overlay('overladata://invalidjson', function(err, source) {
+        t.equal(err, 'Only the overlaydata protocol is supported');
+        t.end();
+    });
+});

@@ -32,7 +32,7 @@ function Source(id, callback) {
     var uri = url.parse(id);
 
     if (!uri || (uri.protocol && uri.protocol !== 'overlaydata:')) {
-        throw new Error('Only the overlaydata protocol is supported');
+        return callback('Only the overlaydata protocol is supported');
     }
 
     var data = id.replace('overlaydata://', '');
@@ -48,6 +48,7 @@ function Source(id, callback) {
     }
 
     var generated = mapnikify(JSON.parse(data), retina, function(err, xml) {
+        if (err) return callback(err);
         this._xml = xml;
         callback(null, this);
     }.bind(this));
@@ -65,13 +66,17 @@ Source.prototype.getTile = function(z, x, y, callback) {
     var map = new mapnik.Map(256, 256);
     var im = new mapnik.Image(256, 256);
 
-    map.fromStringSync(this._xml, {});
-    map.bufferSize = 256;
-    map.extent = sph.xyz_to_envelope(x, y, z);
-    map.render(im, function(err, im) {
-        if (err) return callback(err);
-        callback(err, im.encodeSync('png'));
-    });
+    try {
+        map.fromStringSync(this._xml, {});
+        map.bufferSize = 256;
+        map.extent = sph.xyz_to_envelope(x, y, z);
+        map.render(im, function(err, im) {
+            if (err) return callback(err);
+            callback(err, im.encodeSync('png'));
+        });
+    } catch(e) {
+        callback(e);
+    }
 };
 
 /**
