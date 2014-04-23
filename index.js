@@ -6,6 +6,7 @@ var util = require('util'),
     getUrlMarker = require('./lib/urlmarker.js'),
     url = require('url'),
     fs = require('fs'),
+    Pool = require('generic-pool').Pool,
     ErrorHTTP = require('./lib/errorhttp'),
     os = require('os'),
     path = require('path');
@@ -48,6 +49,21 @@ function Source(id, callback) {
     var generated = mapnikify(JSON.parse(data), retina, function(err, xml) {
         if (err) return callback(err);
         this._xml = xml;
+        this._map = Pool({
+            create: function(callback) {
+                var map = new mapnik.Map(256, 256);
+                map.fromString(this._xml, {
+                    strict:false,
+                    base:this._base + '/'
+                }, function(err) {
+                    if (err) return callback(err);
+                    map.bufferSize = 256;
+                    return callback(err, map);
+                });
+            }.bind(this),
+            destroy: function(map) { delete map; },
+            max: require('os').cpus().length
+        });
         callback(null, this);
     }.bind(this));
 }
@@ -61,24 +77,17 @@ function Source(id, callback) {
  * @param {function} callback
  */
 Source.prototype.getTile = function(z, x, y, callback) {
-    var map = new mapnik.Map(256, 256);
-    var im = new mapnik.Image(256, 256);
-
-    try {
-        map.fromString(this._xml, {}, function(err) {
+    this._map.acquire(function(err, map) {
+        if (err) return callback(err);
+        var im = new mapnik.Image(256, 256);
+        map.extent = sph.xyz_to_envelope(x, y, z);
+        map.render(im, {}, function(err, im) {
             if (err) return callback(err);
-            map.bufferSize = 256;
-            map.extent = sph.xyz_to_envelope(x, y, z);
-            map.render(im, {}, function(err, im) {
-                if (err) return callback(err);
-                im.encode('png', function(err, res) {
-                    callback(err, res);
-                });
+            im.encode('png', function(err, res) {
+                callback(err, res);
             });
         });
-    } catch(e) {
-        callback(e);
-    }
+    });
 };
 
 /**

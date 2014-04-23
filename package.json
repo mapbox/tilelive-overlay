@@ -36,6 +36,7 @@
     "xtend": "~3.0.0",
     "geojson-mapnikify": "0.0.5",
     "request": "~2.34.0",
+    "generic-pool": "~2.0.0",
     "geojsonhint": "~0.3.1"
   }
 }
