@@ -1,5 +1,6 @@
 var Benchmark = require('benchmark'),
     fs = require('fs'),
+    queue = require('queue-async'),
     Overlay = require('../');
 
 var suite = new Benchmark.Suite();
@@ -8,7 +9,11 @@ new Overlay('overlaydata://' + fs.readFileSync('./test/data/example.geojson', 'u
     function(err, source) {
         suite
         .add('#getTile', function(deferred) {
-            source.getTile(0, 0, 0, function() {
+            var q = queue(4);
+            for (var i = 0; i < 16; i++) q.defer(function(done) {
+                source.getTile(1, 0, 0, done);
+            });
+            q.awaitAll(function() {
                 deferred.resolve();
             });
         }, {
