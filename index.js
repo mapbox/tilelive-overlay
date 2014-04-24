@@ -52,10 +52,7 @@ function Source(id, callback) {
         this._map = Pool({
             create: function(callback) {
                 var map = new mapnik.Map(256, 256);
-                map.fromString(this._xml, {
-                    strict:false,
-                    base:this._base + '/'
-                }, function(err) {
+                map.fromString(this._xml, { strict:false }, function(err) {
                     if (err) return callback(err);
                     map.bufferSize = 256;
                     return callback(err, map);
