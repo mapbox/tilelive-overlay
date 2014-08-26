@@ -27,14 +27,10 @@
     "benchmark": "~1.0.0"
   },
   "dependencies": {
-    "mapnik": "~1.4.10",
+    "mapnik": "https://github.com/mapnik/node-mapnik/tarball/mapnik3",
     "sphericalmercator": "~1.0.2",
-    "blend": "~0.10.1",
-    "agentkeepalive": "~0.2.2",
-    "lru-cache": "~2.5.0",
-    "xtend": "~3.0.0",
-    "geojson-mapnikify": "~0.0.6",
+    "geojson-mapnikify": "0.1.0",
     "request": "~2.34.0",
-    "geojsonhint": "~0.3.1"
+    "geojsonhint": "0.3.1"
   }
 }

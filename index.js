@@ -3,7 +3,6 @@ var util = require('util'),
     sph = require('./lib/sphericalmercator.js'),
     geojsonhint = require('geojsonhint'),
     mapnikify = require('geojson-mapnikify'),
-    getUrlMarker = require('./lib/urlmarker.js'),
     url = require('url'),
     fs = require('fs'),
     ErrorHTTP = require('./lib/errorhttp'),
@@ -61,8 +60,8 @@ function Source(id, callback) {
  * @param {function} callback
  */
 Source.prototype.getTile = function(z, x, y, callback) {
-    var map = new mapnik.Map(256, 256);
-    var im = new mapnik.Image(256, 256);
+    var map = new mapnik.Map(256, 256),
+        im = new mapnik.Image(256, 256);
 
     try {
         map.fromString(this._xml, {}, function(err) {
