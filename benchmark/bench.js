@@ -12,7 +12,10 @@ new Overlay('overlaydata://' + fs.readFileSync('./test/data/complex.geojson', 'u
         .add('#getTile', function(deferred) {
             var q = queue(4);
             for (var i = 0; i < 16; i++) q.defer(function(done) {
-                source.getTile(11, 486, 779, done);
+                source.getTile(11, 486, 779, function(err,im) {
+                    if (err) throw err;
+                    done();
+                });
             });
             q.awaitAll(function() {
                 deferred.resolve();
