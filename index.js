@@ -65,7 +65,6 @@ Source.prototype.getTile = function(z, x, y, callback) {
     try {
         map.fromString(this._xml, {}, function(err) {
             if (err) return callback(err);
-            map.bufferSize = 256;
             map.extent = sph.xyz_to_envelope(x, y, z);
             map.render(new mapnik.Image(256, 256), {}, function(err, im) {
                 if (err) return callback(err);

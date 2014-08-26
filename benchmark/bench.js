@@ -7,6 +7,7 @@ var suite = new Benchmark.Suite();
 
 new Overlay('overlaydata://' + fs.readFileSync('./test/data/complex.geojson', 'utf8'),
     function(err, source) {
+        if (err) throw err;
         suite
         .add('#getTile', function(deferred) {
             var q = queue(4);
