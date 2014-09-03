@@ -30,7 +30,6 @@
   "dependencies": {
     "mapnik": "https://github.com/mapnik/node-mapnik/tarball/mapnik3",
     "sphericalmercator": "~1.0.2",
-    "geojson-mapnikify": "0.1.0",
-    "geojsonhint": "0.3.1"
+    "geojson-mapnikify": "0.1.0"
   }
 }

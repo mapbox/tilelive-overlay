@@ -1,7 +1,6 @@
 var util = require('util'),
     mapnik = require('mapnik'),
     sph = require('./lib/sphericalmercator.js'),
-    geojsonhint = require('geojsonhint'),
     mapnikify = require('geojson-mapnikify'),
     url = require('url'),
     fs = require('fs'),
@@ -40,15 +39,16 @@ function Source(id, callback) {
         data = data.replace(/^2x:/, '');
     }
 
-    if (geojsonhint.hint(data).length) {
+    try {
+        var parsed = JSON.parse(data);
+        var generated = mapnikify(parsed, retina, function(err, xml) {
+            if (err) return callback(err);
+            this._xml = xml;
+            callback(null, this);
+        }.bind(this));
+    } catch(e) {
         return callback('invalid geojson');
     }
-
-    var generated = mapnikify(JSON.parse(data), retina, function(err, xml) {
-        if (err) return callback(err);
-        this._xml = xml;
-        callback(null, this);
-    }.bind(this));
 }
 
 /**
@@ -66,15 +66,17 @@ Source.prototype.getTile = function(z, x, y, callback) {
         map.fromString(this._xml, {}, function(err) {
             if (err) return callback(err);
             map.extent = sph.xyz_to_envelope(x, y, z);
-            map.render(new mapnik.Image(256, 256), {}, function(err, im) {
-                if (err) return callback(err);
-                im.encode('png8:m=h:z=1', function(err, res) {
-                    callback(err, res);
-                });
-            });
+            map.render(new mapnik.Image(256, 256), {}, onrender);
         });
     } catch(e) {
         callback(e);
+    }
+
+    function onrender(err, im) {
+        if (err) return callback(err);
+        im.encode('png8:m=h:z=1', function(err, res) {
+            callback(err, res);
+        });
     }
 };
 
