@@ -28,7 +28,6 @@
     "benchmark": "~1.0.0"
   },
   "dependencies": {
-    "mapnik": "git://github.com/mapnik/node-mapnik.git#b452794b578537ce2cf03c01d28d35e0396a914d",
     "sphericalmercator": "~1.0.2",
     "geojson-mapnikify": "0.1.0"
   }
