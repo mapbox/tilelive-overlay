@@ -29,6 +29,6 @@
   },
   "dependencies": {
     "sphericalmercator": "~1.0.2",
-    "geojson-mapnikify": "0.1.0"
+    "geojson-mapnikify": "0.1.1"
   }
 }
