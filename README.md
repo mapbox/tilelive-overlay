@@ -1,12 +1,12 @@
 [![Build Status](https://travis-ci.org/mapbox/tilelive-overlay.svg?branch=master)](https://travis-ci.org/mapbox/tilelive-overlay)
 
-# tilelive-simplestyle
+# tilelive-overlay
 
 Add GeoJSON features with simplestyle styles in a tilelive pipeline.
 
 ## Install
 
-    npm install --save tilelive-simplestyle
+    npm install --save tilelive-overlay
 
 ## API
 
