@@ -49,7 +49,6 @@ function Source(id, callback) {
         var parsed = JSON.parse(data);
         var generated = mapnikify(parsed, retina, function(err, xml) {
             if (err) return callback(err);
-            console.log(xml);
             this._xml = xml;
             this._size = retina && !legacy ? 512 : 256;
             callback(null, this);
