@@ -33,10 +33,16 @@ function Source(id, callback) {
 
     var data = id.replace('overlaydata://', '');
     var retina = false;
+    var legacy = false;
 
     if (data.indexOf('2x:') === 0) {
         retina = true;
         data = data.replace(/^2x:/, '');
+    }
+
+    if (data.indexOf('legacy:') === 0) {
+        legacy = true;
+        data = data.replace(/^legacy:/, '');
     }
 
     try {
@@ -45,6 +51,7 @@ function Source(id, callback) {
             if (err) return callback(err);
             console.log(xml);
             this._xml = xml;
+            this._size = retina && !legacy ? 512 : 256;
             callback(null, this);
         }.bind(this));
     } catch(e) {
@@ -61,13 +68,14 @@ function Source(id, callback) {
  * @param {function} callback
  */
 Source.prototype.getTile = function(z, x, y, callback) {
-    var map = new mapnik.Map(256, 256);
+    var size = this._size;
+    var map = new mapnik.Map(size, size);
 
     try {
         map.fromString(this._xml, {}, function(err) {
             if (err) return callback(err);
             map.extent = sph.xyz_to_envelope(x, y, z);
-            map.render(new mapnik.Image(256, 256), {}, onrender);
+            map.render(new mapnik.Image(size, size), {}, onrender);
         });
     } catch(e) {
         callback(e);
