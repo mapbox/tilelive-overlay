@@ -51,6 +51,7 @@ function Source(id, callback) {
             if (err) return callback(err);
             this._xml = xml;
             this._size = retina && !legacy ? 512 : 256;
+            this._bufferSize = retina ? 128 : 64;
             callback(null, this);
         }.bind(this));
     } catch(e) {
@@ -69,6 +70,7 @@ function Source(id, callback) {
 Source.prototype.getTile = function(z, x, y, callback) {
     var size = this._size;
     var map = new mapnik.Map(size, size);
+    map.bufferSize = this._bufferSize;
 
     try {
         map.fromString(this._xml, {}, function(err) {
