@@ -104,6 +104,33 @@ test('overlay buffer', function(t) {
     }
 });
 
+test('overlay buffer @2x', function(t) {
+    var source;
+    new Overlay('overlaydata://2x:' + fs.readFileSync(__dirname + '/data/buffer.geojson', 'utf8'),
+        function(err, s) {
+        if (err) throw err;
+        source = s;
+        t.notOk(err, 'no error returned');
+        t.ok(source, 'source created');
+        a();
+    });
+    function a() {
+        source.getTile(1, 0, 0, function(err, res) {
+            t.notOk(err, 'no error');
+            compare(res, __dirname + '/data/buffer-1.0.0@2x.png', t);
+            b();
+        });
+    }
+    function b() {
+        source.getTile(1, 1, 0, function(err, res) {
+            t.notOk(err, 'no error');
+            compare(res, __dirname + '/data/buffer-1.1.0@2x.png', t);
+            t.end();
+        });
+    }
+});
+
+
 test('overlay-invalid', function(t) {
     new Overlay('overlaydata://invalidjson', function(err, source) {
         t.equal(err, 'invalid geojson');
