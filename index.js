@@ -1,6 +1,6 @@
 var util = require('util'),
     mapnik = require('mapnik'),
-    sph = require('./lib/sphericalmercator.js'),
+    sm = new (require('sphericalmercator'))(),
     mapnikify = require('geojson-mapnikify'),
     url = require('url'),
     fs = require('fs'),
@@ -75,7 +75,7 @@ Source.prototype.getTile = function(z, x, y, callback) {
     try {
         map.fromString(this._xml, {}, function(err) {
             if (err) return callback(err);
-            map.extent = sph.xyz_to_envelope(x, y, z);
+            map.extent = sm.bbox(x, y, z, false, '900913');
             map.render(new mapnik.Image(size, size), {}, onrender);
         });
     } catch(e) {
