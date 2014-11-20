@@ -36,7 +36,7 @@ function compare(res, filepath, assert) {
     // Allow < 2% of pixels to vary by > default comparison threshold of 16.
     var pxThresh = resultImage.width() * resultImage.height() * 0.005;
     var pxDiff = expectImage.compare(resultImage);
-    assert.ok(pxDiff < pxThresh);
+    assert.ok(pxDiff < pxThresh, filepath);
 }
 
 function textFixture(name) {
