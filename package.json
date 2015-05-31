@@ -30,6 +30,6 @@
   },
   "dependencies": {
     "sphericalmercator": "~1.0.2",
-    "geojson-mapnikify": "0.4.x"
+    "geojson-mapnikify": "https://github.com/mapbox/geojson-mapnikify/tarball/new-keep-alive"
   }
 }
