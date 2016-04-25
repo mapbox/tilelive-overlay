@@ -25,7 +25,12 @@ require('util').inherits(Source, require('events').EventEmitter);
  * @returns {undefined}
  */
 function Source(id, callback) {
-    var uri = url.parse(id);
+    var uri;
+    try {
+        uri = url.parse(id);
+    } catch (e) {
+        throw new Error("Failed to parse "+id+" error was: "+ e.message)
+    }
 
     if (!uri || (uri.protocol && uri.protocol !== 'overlaydata:')) {
         return callback('Only the overlaydata protocol is supported');
