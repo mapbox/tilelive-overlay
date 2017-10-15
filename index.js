@@ -45,18 +45,20 @@ function Source(id, callback) {
         data = data.replace(/^legacy:/, '');
     }
 
+    var parsed;
     try {
-        var parsed = JSON.parse(data);
-        var generated = mapnikify(parsed, retina, function(err, xml) {
-            if (err) return callback(err);
-            this._xml = xml;
-            this._size = retina && !legacy ? 512 : 256;
-            this._bufferSize = retina ? 128 : 64;
-            callback(null, this);
-        }.bind(this));
+        parsed = JSON.parse(data);
     } catch(e) {
         return callback('invalid geojson');
     }
+
+    mapnikify(parsed, retina, function(err, xml) {
+        if (err) return callback(err);
+        this._xml = xml;
+        this._size = retina && !legacy ? 512 : 256;
+        this._bufferSize = retina ? 128 : 64;
+        callback(null, this);
+    }.bind(this));
 }
 
 /**
