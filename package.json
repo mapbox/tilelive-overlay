@@ -24,12 +24,12 @@
   "homepage": "https://github.com/mapbox/tilelive-overlay",
   "devDependencies": {
     "benchmark": "~1.0.0",
-    "mapnik": "^4.0.1",
+    "mapnik": "3.x || 4.x",
     "queue-async": "~1.0.7",
     "tap": "~0.4.8"
   },
   "dependencies": {
-    "@mapbox/geojson-mapnikify": "^1.1.1-0",
+    "@mapbox/geojson-mapnikify": "^2.0.0",
     "@mapbox/sphericalmercator": "~1.0.2"
   }
 }
