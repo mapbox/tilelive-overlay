@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.0
+- Updated to @mapbox/geojson-mapnikify 2.0.0
+- Now accepting either mapnik 3.x or 4.x
+
 ## v1.1.0
 - Updated version of node-mapnik to 4.0.1
 - Ends node v0.10.x support
