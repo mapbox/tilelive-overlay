@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.1.0
+- Updated to @mapbox/geojson-mapnikify 2.1.0 (with improved error messaging)
+
 ## v2.0.0
 - Updated to @mapbox/geojson-mapnikify 2.0.0
 - Now accepting either mapnik 3.x or 4.x
