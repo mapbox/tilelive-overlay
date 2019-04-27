@@ -1,10 +1,13 @@
 {
-  "name": "@mapbox/tilelive-overlay",
+  "name": "@wikimedia/tilelive-overlay",
   "version": "2.3.0",
   "description": "use geojson and simplestyle features rendered with mapnik",
   "main": "index.js",
   "scripts": {
     "test": "tap test/*.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -24,12 +27,12 @@
   "homepage": "https://github.com/mapbox/tilelive-overlay",
   "devDependencies": {
     "benchmark": "~1.0.0",
-    "mapnik": "3.x || 4.x",
+    "@kartotherian/mapnik": "3.7.3",
     "queue-async": "~1.0.7",
     "tap": "~0.4.8"
   },
   "dependencies": {
-    "@mapbox/geojson-mapnikify": "^2.1.0",
+    "@wikimedia/geojson-mapnikify": "^3.0.1",
     "@mapbox/sphericalmercator": "^1.1.0"
   }
 }

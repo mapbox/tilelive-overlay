@@ -1,6 +1,6 @@
-var mapnik = require('mapnik'),
+var mapnik = require('@kartotherian/mapnik'),
     sm = new (require('@mapbox/sphericalmercator'))(),
-    mapnikify = require('@mapbox/geojson-mapnikify');
+    mapnikify = require('@wikimedia/geojson-mapnikify');
 
 if (mapnik.register_default_input_plugins) {
     mapnik.register_default_input_plugins();
