@@ -29,7 +29,7 @@
     "tap": "~0.4.8"
   },
   "dependencies": {
-    "@mapbox/geojson-mapnikify": "^3.0.0",
+    "@mapbox/geojson-mapnikify": "^3.0.1-dev.0",
     "@mapbox/sphericalmercator": "^1.1.0"
   }
 }
