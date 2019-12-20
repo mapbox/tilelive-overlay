@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.0
+- Updated to @mapbox/geojson-mapnikify 3.0.0 (node 10 support)
+- Updated to @mapbox/sphericalmercator 1.1.0 (support for floating point zoom levels in `ll` and `px` methods)
+
 ## v2.1.0
 - Updated to @mapbox/geojson-mapnikify 2.1.0 (with improved error messaging)
 
