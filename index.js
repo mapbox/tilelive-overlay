@@ -1,12 +1,6 @@
-var util = require('util'),
-    mapnik = require('mapnik'),
+var mapnik = require('mapnik'),
     sm = new (require('@mapbox/sphericalmercator'))(),
-    mapnikify = require('@mapbox/geojson-mapnikify'),
-    url = require('url'),
-    fs = require('fs'),
-    ErrorHTTP = require('./lib/errorhttp'),
-    os = require('os'),
-    path = require('path');
+    mapnikify = require('@mapbox/geojson-mapnikify');
 
 if (mapnik.register_default_input_plugins) {
     mapnik.register_default_input_plugins();
