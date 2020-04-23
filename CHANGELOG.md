@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.0
+- Avoids potential URL parsing issue and instead just does a simple check for the overlaydata protocol
+- Reverts back to @mapbox/geojson-mapnikify 2.1.0
+
 ## v2.2.0
 - Updated to @mapbox/geojson-mapnikify 3.0.0 (node 10 support)
 - Updated to @mapbox/sphericalmercator 1.1.0 (support for floating point zoom levels in `ll` and `px` methods)

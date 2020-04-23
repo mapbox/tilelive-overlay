@@ -1,12 +1,6 @@
-var util = require('util'),
-    mapnik = require('mapnik'),
+var mapnik = require('mapnik'),
     sm = new (require('@mapbox/sphericalmercator'))(),
-    mapnikify = require('@mapbox/geojson-mapnikify'),
-    url = require('url'),
-    fs = require('fs'),
-    ErrorHTTP = require('./lib/errorhttp'),
-    os = require('os'),
-    path = require('path');
+    mapnikify = require('@mapbox/geojson-mapnikify');
 
 if (mapnik.register_default_input_plugins) {
     mapnik.register_default_input_plugins();
@@ -25,9 +19,7 @@ require('util').inherits(Source, require('events').EventEmitter);
  * @returns {undefined}
  */
 function Source(id, callback) {
-    var uri = url.parse(id);
-
-    if (!uri || (uri.protocol && uri.protocol !== 'overlaydata:')) {
+    if (!id.startsWith('overlaydata://')) {
         return callback('Only the overlaydata protocol is supported');
     }
 
@@ -48,7 +40,7 @@ function Source(id, callback) {
     var parsed;
     try {
         parsed = JSON.parse(data);
-    } catch(e) {
+    } catch (e) {
         return callback('invalid geojson');
     }
 
@@ -80,7 +72,7 @@ Source.prototype.getTile = function(z, x, y, callback) {
             map.extent = sm.bbox(x, y, z, false, '900913');
             map.render(new mapnik.Image(size, size), {}, onrender);
         });
-    } catch(e) {
+    } catch (e) {
         callback(e);
     }
 
