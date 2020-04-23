@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/tilelive-overlay",
-  "version": "2.3.0-dev",
+  "version": "2.3.0",
   "description": "use geojson and simplestyle features rendered with mapnik",
   "main": "index.js",
   "scripts": {
