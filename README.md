@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mapbox/tilelive-overlay.svg?branch=master)](https://travis-ci.org/mapbox/tilelive-overlay)
+[![Build Status](https://travis-ci.com/mapbox/tilelive-overlay.svg?branch=master)](https://travis-ci.com/mapbox/tilelive-overlay)
 
 # tilelive-overlay
 
