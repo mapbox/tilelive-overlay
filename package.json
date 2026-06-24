@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/tilelive-overlay",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "use geojson and simplestyle features rendered with mapnik",
   "main": "index.js",
   "scripts": {
@@ -31,5 +31,8 @@
   "dependencies": {
     "@mapbox/geojson-mapnikify": "^2.1.0",
     "@mapbox/sphericalmercator": "^1.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
